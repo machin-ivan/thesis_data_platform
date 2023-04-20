@@ -1,0 +1,1 @@
+cat ./sql/db_setup.sql | docker exec -i airflow-postgres-1 psql -U airflow -d airflow
