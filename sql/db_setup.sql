@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS stg.pool_history (
 	ts timestamp NOT NULL,
 	tvlusd int8 NOT NULL,
 	apy numeric(8, 5) NOT NULL,
-	apybase varchar(10) NOT NULL,
-	apyreward varchar(10) NOT NULL,
+	apybase numeric(8, 5) NOT NULL,
+	apyreward numeric(8, 5) NOT NULL,
 	CONSTRAINT pool_history_pk PRIMARY KEY (id)
 );
 
@@ -60,19 +60,22 @@ CREATE TABLE IF NOT EXISTS stg.reward_tokens (
 CREATE TABLE IF NOT EXISTS dds.stable_symbols (
 	id serial4 NOT NULL,
 	symbol varchar(4) NOT NULL,
+	CONSTRAINT stable_symbols_un UNIQUE (symbol),
 	CONSTRAINT symbols_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS dds.chains (
 	id serial4 NOT NULL,
 	"chain" varchar(30) NOT NULL,
-	CONSTRAINT chains_pk PRIMARY KEY (id)
+	CONSTRAINT chains_pk PRIMARY KEY (id),
+	CONSTRAINT chains_un UNIQUE (chain)
 );
 
 CREATE TABLE IF NOT EXISTS dds.projects (
 	id serial4 NOT NULL,
 	project_name varchar(40) NOT NULL,
-	CONSTRAINT projects_pk PRIMARY KEY (id)
+	CONSTRAINT projects_pk PRIMARY KEY (id),
+	CONSTRAINT projects_un UNIQUE (project_name)
 );
 
 CREATE TABLE IF NOT EXISTS dds.pools (
@@ -98,8 +101,8 @@ CREATE TABLE IF NOT EXISTS dds.pool_history (
 	date_ date NOT NULL,
 	tvlusd int8 NOT NULL,
 	apy numeric(8, 5) NOT NULL,
-	apybase varchar(10) NOT NULL,
-	apyreward varchar(10) NOT NULL,
+	apybase numeric(8, 5) NOT NULL,
+	apyreward numeric(8, 5) NOT NULL,
 	CONSTRAINT pool_history_pk PRIMARY KEY (id),
 	CONSTRAINT pool_history_fk FOREIGN KEY (pool_id) REFERENCES dds.pools(id)
 );
@@ -128,4 +131,18 @@ CREATE TABLE IF NOT EXISTS dds.pools_rewtokens_rel (
 	pool_id varchar NOT NULL,
 	rew_token_addr text NOT NULL,
 	CONSTRAINT pools_rewtokens_rel_pk PRIMARY KEY (pool_id,rew_token_addr)
+);
+
+
+CREATE TABLE IF NOT EXISTS dds.reward_tokens_clusters (
+	id serial4 NOT NULL,
+	rew_token_id int8 NOT NULL,
+	stability_24h int2 NOT NULL,
+	stability_7d int2 NOT NULL,
+	stability_30d int2 NOT NULL,
+	stability_60d int2 NOT NULL,
+	stability_200d int2 NOT NULL,
+	mcap_rating int2 NOT NULL,
+	rew_token_coef float4 NOT NULL,
+	CONSTRAINT reward_tokens_clusters_fk FOREIGN KEY (rew_token_id) REFERENCES dds.reward_tokens(id)
 );

@@ -1,56 +1,8 @@
-import psycopg2
 import re
 import os
 
 import config
-
-
-def run_sql_script(sql: str,
-                   conn_params:dict):
-    """
-    Connects to db and runs the sql script
-
-    Args:
-        sql::str
-            SQL script
-    """
-    conn = psycopg2.connect(host=conn_params['host'],
-                            database=conn_params['database'],
-                            port=conn_params['port'],
-                            user=conn_params['user'],
-                            password=conn_params['password'])
-    cursor = conn.cursor()
-    conn.autocommit = True
-
-    cursor.execute(sql)
-
-    cursor.close()
-    conn.close()
-
-
-def get_from_db(sql: str,
-                conn_params: dict):
-    """
-    Performs SELECT operation to a db and returns its result
-
-    Returns:
-        lines::list
-            Result of SELECT operation
-    """
-    conn = psycopg2.connect(host=conn_params['host'],
-                            database=conn_params['database'],
-                            port=conn_params['port'],
-                            user=conn_params['user'],
-                            password=conn_params['password'])
-    cursor = conn.cursor()
-    conn.autocommit = True
-
-    cursor.execute(sql)
-    lines = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    return lines
+from sql_helper_functions import run_sql_script, get_from_db
 
 
 def load_pools_rewtokens_rel_table(conn_params: dict):

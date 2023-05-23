@@ -2,7 +2,8 @@ import config
 import datetime
 import time
 import requests
-import psycopg2
+
+from sql_helper_functions import load_to_db
 
 
 def filter_pools(pools_list: list):
@@ -36,8 +37,8 @@ def pools_transform_response(pools_list: list):
     for line in pools_list:
         tmp = f"'{cur_ts}', '{line['chain']}', '{line['project']}', " \
             f"'{line['symbol']}', {line['tvlUsd']}, " \
-            f"{line['apyBase'] if line['apyBase'] is not None else 0}, "\
-            f"{line['apyReward'] if line['apyReward'] is not None else 0}, "\
+            f"{line['apyBase'] if line['apyBase'] is not None else -1}, "\
+            f"{line['apyReward'] if line['apyReward'] is not None else -1}, "\
             f"""{line['apy']},'{str(line['rewardTokens']).replace("'", '"')}', """ \
             f"'{line['pool']}'"
         vals_to_insert.append(tmp)
@@ -65,8 +66,8 @@ def pools_hist_transform_response(data: list,
     for line in data:
         tmp = f"'{id}', '{line['timestamp']}', {line['tvlUsd']}, " \
         f"{line['apy']}, " \
-        f"{line['apyBase'] if line['apyBase'] is not None else 0}, " \
-        f"{line['apyReward'] if line['apyReward'] is not None else 0} "
+        f"{line['apyBase'] if line['apyBase'] is not None else -1}, " \
+        f"{line['apyReward'] if line['apyReward'] is not None else -1} "
 
         vals_to_insert.append(tmp)
     
@@ -93,47 +94,20 @@ def line_from_reward_token_response(data: dict,
     md = data['market_data']
     
     tmp = f"'{data['symbol']}', '{chain}', '{address}', " \
-    f"{md['total_value_locked']['usd'] if md['total_value_locked'] is not None else 0}, " \
-    f"{md['mcap_to_tvl_ratio'] if md['mcap_to_tvl_ratio'] is not None else 0}, " \
-    f"{md['fdv_to_tvl_ratio'] if md['fdv_to_tvl_ratio'] is not None else 0}, " \
-    f"{md['market_cap']['usd'] if md['market_cap']['usd'] is not None else 0}, " \
-    f"{md['market_cap_rank'] if md['market_cap_rank'] is not None else 0}, " \
-    f"{md['fully_diluted_valuation']['usd'] if md['fully_diluted_valuation'] != {} else 0}, " \
-    f"{md['price_change_percentage_24h']}, {md['price_change_percentage_7d']}, {md['price_change_percentage_30d']}, " \
-    f"{md['price_change_percentage_60d']}, {md['price_change_percentage_200d']}"
+    f"{md['total_value_locked']['usd'] if md['total_value_locked'] is not None else -1}, " \
+    f"{md['mcap_to_tvl_ratio'] if md['mcap_to_tvl_ratio'] is not None else -1}, " \
+    f"{md['fdv_to_tvl_ratio'] if md['fdv_to_tvl_ratio'] is not None else -1}, " \
+    f"{md['market_cap']['usd'] if md['market_cap']['usd'] is not None else -1}, " \
+    f"{md['market_cap_rank'] if md['market_cap_rank'] is not None else -1}, " \
+    f"{md['fully_diluted_valuation']['usd'] if md['fully_diluted_valuation'] != {} else -1}, " \
+    f"{md['price_change_percentage_24h'] if md['price_change_percentage_24h'] is not None else 0}, " \
+    f"{md['price_change_percentage_7d'] if md['price_change_percentage_7d'] is not None else 0}, " \
+    f"{md['price_change_percentage_30d'] if md['price_change_percentage_30d'] is not None else 0}, " \
+    f"{md['price_change_percentage_60d'] if md['price_change_percentage_60d'] is not None else 0}, " \
+    f"{md['price_change_percentage_200d'] if md['price_change_percentage_200d'] is not None else 0} "
     
     return [tmp]
     
-
-def load_to_db(conn_params:dict,
-               table_name: str,
-               columns: str,
-               lines: list):
-    """
-    Creates connection with db and loads lines one by one
-
-    Args:
-        conn_params::dict
-        table_name::str
-        columns::str
-        lines::list
-    """
-    conn = psycopg2.connect(host="postgres",
-                        database=conn_params['database'],
-                        port=conn_params['port'],
-                        user=conn_params['user'],
-                        password=conn_params['password'])
-
-    cursor = conn.cursor()
-    conn.autocommit = True
-
-    for line in lines:
-        sql = f"INSERT INTO {table_name} {columns} VALUES ({line}); \n"
-        cursor.execute(sql)
-
-    cursor.close()
-    conn.close()
-
 
 def get_and_load_pools_hist(pool_ids: list):
     """

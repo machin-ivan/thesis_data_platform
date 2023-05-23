@@ -2,18 +2,21 @@
 
 INSERT INTO dds.stable_symbols (symbol)
 SELECT DISTINCT symbol
-FROM stg.pools;
+FROM stg.pools
+ON CONFLICT DO NOTHING;
 
 INSERT INTO dds.chains ("chain")
 SELECT DISTINCT "chain"
 FROM stg.pools p
 UNION 
 SELECT DISTINCT "chain"
-FROM stg.reward_tokens rt;
+FROM stg.reward_tokens rt
+ON CONFLICT DO NOTHING;
 
 INSERT INTO dds.projects (project_name)
 SELECT DISTINCT project
-FROM stg.pools;
+FROM stg.pools
+ON CONFLICT DO NOTHING;
 
 INSERT INTO dds.reward_tokens (symbol, "chain", contract_addr, tvl, 
 	mcap_to_tvl, fdv_to_tvl, mcap, market_cap_rank, fdv, 
@@ -39,3 +42,14 @@ apybase, apyreward)
 SELECT p.id, ph.ts::date, ph.tvlusd, ph.apy, ph.apybase, ph.apyreward
 FROM stg.pool_history ph 
 JOIN dds.pools p ON ph.pool_id = p.pool_id;
+
+
+UPDATE dds.pools SET
+	apyreward  = apy,
+	apybase = 0
+WHERE (apybase = -1 AND apyreward = -1);
+
+UPDATE dds.pool_history SET
+	apyreward  = apy,
+	apybase = 0
+WHERE (apybase = -1 AND apyreward = -1);
