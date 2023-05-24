@@ -114,7 +114,7 @@ def reset_dds_func():
 
 def main_datamart_create():
     cur_dir = os.path.dirname(__file__)
-    rel_path = "/sql/create_main_cdm.sql"
+    rel_path = "/sql/create_cdm.sql"
     path = cur_dir + rel_path
 
     with open(path, 'r') as f:

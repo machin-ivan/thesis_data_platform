@@ -43,5 +43,23 @@ JOIN dds.chains c ON p.chain_id = c.id
 JOIN dds.projects pr ON p.project_id = pr.id 
 JOIN dds.stable_symbols s ON p.symbol_id = s.id
 join cte2 on p.pool_id = cte2.pool_id
-WHERE cte."date_" = current_date - 1
+WHERE cte."date_" = current_date;
 
+REFRESH MATERIALIZED VIEW cdm.main_datamart;
+
+
+create materialized view if not exists cdm.reward_tokens_datamart as
+select rt.*,
+	rtc.rew_token_id,
+	rtc.stability_24h,
+	rtc.stability_7d,
+	rtc.stability_30d,
+	rtc.stability_60d,
+	rtc.stability_200d,
+	rtc.mcap_rating,
+	rtc.rew_token_coef
+from dds.reward_tokens rt
+join dds.reward_tokens_clusters rtc
+on rt.id = rtc.rew_token_id;
+
+REFRESH MATERIALIZED VIEW cdm.reward_tokens_datamart;

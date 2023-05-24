@@ -27,10 +27,10 @@ with DAG(
                                python_callable=clear_stg_func)
     rew_tokens_clusterize = PythonOperator(task_id='rew_tokens_clusterize', 
                                python_callable=rt_clusterize)
-    create_main_datamart = PythonOperator(task_id='create_main_datamart', 
+    create_datamarts= PythonOperator(task_id='create_datamarts', 
                                python_callable=main_datamart_create)
     
     
 
-dds_reset >> load_staging >> stg_dds_migration >> clear_stg >> rew_tokens_clusterize >> create_main_datamart
+dds_reset >> load_staging >> stg_dds_migration >> clear_stg >> rew_tokens_clusterize >> create_datamarts
 
