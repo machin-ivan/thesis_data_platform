@@ -53,3 +53,19 @@ UPDATE dds.pool_history SET
 	apyreward  = apy,
 	apybase = 0
 WHERE (apybase = -1 AND apyreward = -1);
+
+UPDATE dds.pools SET
+	apybase = 0
+WHERE apybase = -1;
+
+UPDATE dds.pools SET
+	apyreward = 0
+WHERE apyreward = -1;
+
+UPDATE dds.pool_history SET
+	apybase = 0
+WHERE apybase = -1;
+
+UPDATE dds.pool_history SET
+	apyreward = 0
+WHERE apyreward = -1;
