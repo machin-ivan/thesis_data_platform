@@ -121,8 +121,10 @@ def get_and_load_pools_hist(pool_ids: list):
     for id in pool_ids:
         url = 'https://yields.llama.fi'
         endpoint = f'/chart/{id}'
-
-        response = requests.get(url + endpoint).json()
+        try:
+            response = requests.get(url + endpoint).json()
+        except:
+            continue
         assert response['status'] == 'success'
 
         data = response['data']

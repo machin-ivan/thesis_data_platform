@@ -6,7 +6,7 @@ from airflow.operators.python import PythonOperator
 from stg_load_script import run_stg_load_script
 from stg_dds_migration import run_stg_dds_mirgation
 from rew_tokens_clusterize import rt_clusterize
-from sql_helper_functions import clear_stg_func, reset_dds_func, main_datamart_create
+from sql_helper_functions import clear_stg_func, main_datamart_create
 
 
 DAG_ID = 'main_dag'
@@ -17,8 +17,6 @@ with DAG(
     schedule="@daily",
     catchup=False
 ) as dag:
-    dds_reset = PythonOperator(task_id='reset_dds', 
-                               python_callable=reset_dds_func)
     load_staging = PythonOperator(task_id='load_staging',
                                   python_callable=run_stg_load_script)
     stg_dds_migration = PythonOperator(task_id='stg_dds_migration',
@@ -32,5 +30,5 @@ with DAG(
     
     
 
-dds_reset >> load_staging >> stg_dds_migration >> clear_stg >> rew_tokens_clusterize >> create_datamarts
+load_staging >> stg_dds_migration >> clear_stg >> rew_tokens_clusterize >> create_datamarts
 

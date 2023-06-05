@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS dds.pools (
 	apyreward numeric(8, 5) NOT NULL,
 	apy numeric(8, 5) NOT NULL,
 	CONSTRAINT pools_pk PRIMARY KEY (id),
+	CONSTRAINT pools_un UNIQUE (pool_id, date_),
 	CONSTRAINT pools_fk FOREIGN KEY (chain_id) REFERENCES dds.chains(id),
 	CONSTRAINT pools_fk_1 FOREIGN KEY (project_id) REFERENCES dds.projects(id),
 	CONSTRAINT pools_fk_2 FOREIGN KEY (symbol_id) REFERENCES dds.stable_symbols(id)
@@ -104,6 +105,7 @@ CREATE TABLE IF NOT EXISTS dds.pool_history (
 	apybase numeric(8, 5) NOT NULL,
 	apyreward numeric(8, 5) NOT NULL,
 	CONSTRAINT pool_history_pk PRIMARY KEY (id),
+	CONSTRAINT pool_history_un UNIQUE (pool_id, date_),
 	CONSTRAINT pool_history_fk FOREIGN KEY (pool_id) REFERENCES dds.pools(id)
 );
 
@@ -123,14 +125,18 @@ CREATE TABLE IF NOT EXISTS dds.reward_tokens (
 	price_change_30d float4 NOT NULL,
 	price_change_60d float4 NOT NULL,
 	price_change_200d float4 NOT NULL,
+	date_ date NOT NULL,
 	CONSTRAINT reward_tokens_pk PRIMARY KEY (id),
+	CONSTRAINT reward_tokens_un UNIQUE (contract_addr, date_),
 	CONSTRAINT reward_tokens_fk FOREIGN KEY ("chain") REFERENCES dds.chains(id)
 );
 
 CREATE TABLE IF NOT EXISTS dds.pools_rewtokens_rel (
+	id serial4 NOT NULL,
 	pool_id varchar NOT NULL,
 	rew_token_addr text NOT NULL,
-	CONSTRAINT pools_rewtokens_rel_pk PRIMARY KEY (pool_id,rew_token_addr)
+	CONSTRAINT pools_rewtokens_rel_pk PRIMARY KEY (id),
+	CONSTRAINT pools_rewtokens_rel_un UNIQUE (pool_id,rew_token_addr)
 );
 
 
@@ -144,5 +150,6 @@ CREATE TABLE IF NOT EXISTS dds.reward_tokens_clusters (
 	stability_200d int2 NOT NULL,
 	mcap_rating int2 NOT NULL,
 	rew_token_coef float4 NOT NULL,
+	date_ date NOT NULL,
 	CONSTRAINT reward_tokens_clusters_fk FOREIGN KEY (rew_token_id) REFERENCES dds.reward_tokens(id)
 );

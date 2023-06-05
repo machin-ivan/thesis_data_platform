@@ -27,7 +27,7 @@ def load_pools_rewtokens_rel_table(conn_params: dict):
 
     res = list(set(res))
     s = re.sub('[\[\]]', '', str(res))
-    sql = f"INSERT INTO dds.pools_rewtokens_rel VALUES {s}"
+    sql = f"INSERT INTO dds.pools_rewtokens_rel (pool_id, rew_token_addr) VALUES {s} ON CONFLICT DO NOTHING;"
 
     run_sql_script(sql=sql, conn_params=config.conn_params)
 

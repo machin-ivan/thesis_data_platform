@@ -92,7 +92,9 @@ def rt_clusterize():
     Load reward tokens data from db, clusterize it, calculate final coefficients
     """
     conn_params = config.conn_params
-    sql = 'select * from dds.reward_tokens'
+    sql = 'select id, symbol, chain, contract_addr, tvl, mcap_to_tvl, fdv_to_tvl, mcap, ' \
+        'market_cap_rank, fdv, price_change_24h, price_change_7d, price_change_30d, ' \
+        'price_change_60d, price_change_200d from dds.reward_tokens'
     lines = get_from_db(sql=sql, conn_params=conn_params)
 
     df = pd.DataFrame(lines)
@@ -106,11 +108,13 @@ def rt_clusterize():
     calculate_ratings(df)
 
     # Load results in db
-    res_cols_str = "(rew_token_id, stability_24h, stability_7d, stability_30d, stability_60d, stability_200d, mcap_rating, rew_token_coef)"
+    res_cols_str = '(rew_token_id, stability_24h, stability_7d, stability_30d, stability_60d, stability_200d, mcap_rating, rew_token_coef, "date_")'
     res_cols = ['id', '24h_stability', '7d_stability', '30d_stability', '60d_stability', '200d_stability', 'mcap_rating', 'rew_token_coef']
     res = list(df[res_cols].to_records(index=False))
+    lines = [", ".join(map(str, list(i))) for i in res]
+    lines = [line + ', current_date' for line in lines]
 
     load_to_db(conn_params=config.conn_params,
-               lines=[", ".join(map(str, list(i))) for i in res], 
+               lines=lines, 
                table_name='dds.reward_tokens_clusters', 
                columns=res_cols_str)

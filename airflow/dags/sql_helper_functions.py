@@ -96,22 +96,6 @@ def clear_stg_func():
     run_sql_script(sql=sql, conn_params=config.conn_params)
 
 
-def reset_dds_func():
-    """
-    Run sql script to clear DDS layer by truncating all tables
-    """
-
-    sql = '''
-        TRUNCATE dds.pools_rewtokens_rel CASCADE;
-        TRUNCATE dds.pool_history CASCADE;
-        TRUNCATE dds.reward_tokens CASCADE;
-        TRUNCATE dds.pools CASCADE;
-        TRUNCATE dds.reward_tokens_clusters CASCADE;
-    '''
-    
-    run_sql_script(sql=sql, conn_params=config.conn_params)
-
-
 def main_datamart_create():
     cur_dir = os.path.dirname(__file__)
     rel_path = "/sql/create_cdm.sql"
